@@ -2911,12 +2911,16 @@
 
           const header = concat([
             new Uint8Array([80, 75, 3, 4]),
-            new Uint8Array([20, 0, 0, 0, 0, 0, 0, 0]),
+            u16(20)[0],
+            u16(0)[0],
+            u16(0)[0],
+            u16(0)[0],
+            u16(0)[0],
             u32(checksum)[0],
             u32(dataBytes.length)[0],
             u32(dataBytes.length)[0],
             u16(nameBytes.length)[0],
-            new Uint8Array([0, 0]),
+            u16(0)[0],
             nameBytes,
             dataBytes
           ]);
@@ -2926,20 +2930,21 @@
           central.push(
             concat([
               new Uint8Array([80, 75, 1, 2]),
-              new Uint8Array([
-                20, 0,
-                20, 0,
-                0, 0,
-                0, 0,
-                0, 0,
-                0, 0,
-                0, 0
-              ]),
+              u16(20)[0],
+              u16(20)[0],
+              u16(0)[0],
+              u16(0)[0],
+              u16(0)[0],
+              u16(0)[0],
               u32(checksum)[0],
               u32(dataBytes.length)[0],
               u32(dataBytes.length)[0],
               u16(nameBytes.length)[0],
-              new Uint8Array([0, 0, 0, 0, 0, 0]),
+              u16(0)[0],
+              u16(0)[0],
+              u16(0)[0],
+              u16(0)[0],
+              u32(0)[0],
               u32(offset)[0],
               nameBytes
             ])
@@ -2957,7 +2962,7 @@
           u16(central.length)[0],
           u32(centralDirectory.length)[0],
           u32(body.length)[0],
-          new Uint8Array([0, 0])
+          u16(0)[0]
         ]);
 
         return concat([
