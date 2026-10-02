@@ -1583,11 +1583,28 @@
 
       function load() {
         try {
-          return JSON.parse(localStorage.getItem(STORE)) || {
-            version: 1,
-            adminHash: null,
-            books: {}
-          };
+          const stored = JSON.parse(localStorage.getItem(STORE));
+
+          if (!stored) {
+            return {
+              version: 1,
+              adminHash: null,
+              books: {}
+            };
+          }
+
+          // One-time cleanup: clear existing audit trails without touching
+          // members, deposits, loans, repayments, or administrator settings.
+          if (!stored.auditClearedV1) {
+            Object.values(stored.books || {}).forEach(item => {
+              item.audit = [];
+            });
+
+            stored.auditClearedV1 = true;
+            localStorage.setItem(STORE, JSON.stringify(stored));
+          }
+
+          return stored;
         } catch {
           return {
             version: 1,
