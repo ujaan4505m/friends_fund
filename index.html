@@ -2785,7 +2785,7 @@
 
       function xml(value) {
         const text = String(value ?? '')
-          .replace(/[\\u0000-\\u0008\\u000B\\u000C\\u000E-\\u001F\\uFFFE\\uFFFF]/g, '');
+          .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]/g, '');
 
         return escapeHtml(text).replace(/\n/g, '&#10;');
       }
@@ -2796,16 +2796,12 @@
             ${rows.map((row, rowIndex) => `
               <row r="${rowIndex + 1}">
                 ${row.map((value, columnIndex) => {
-                  const reference =
-                    col(columnIndex) + (rowIndex + 1);
-
-                  const isNumber =
-                    typeof value === 'number' &&
-                    Number.isFinite(value);
+                  const reference = col(columnIndex) + (rowIndex + 1);
+                  const isNumber = typeof value === 'number' && Number.isFinite(value);
 
                   return isNumber
                     ? `<c r="${reference}"><v>${value}</v></c>`
-                    : `<c r="${reference}" t="inlineStr"><is><t>${xml(value)}</t></is></c>`;
+                    : `<c r="${reference}" t="inlineStr"><is><t xml:space="preserve">${xml(value)}</t></is></c>`;
                 }).join('')}
               </row>
             `).join('')}
