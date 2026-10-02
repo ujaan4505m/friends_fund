@@ -1386,7 +1386,7 @@
 
         <div class="form-grid">
           <div class="field">
-            <label for="repayAmount">Payment amount</label>
+            <label for="repayAmount">Actual money returned</label>
             <input
               id="repayAmount"
               type="number"
@@ -1567,10 +1567,7 @@
       const $$ = selector => [...document.querySelectorAll(selector)];
 
       const money = value =>
-        new Intl.NumberFormat('en-US', {
-          style: 'currency',
-          currency: 'USD'
-        }).format(Number(value) || 0);
+        new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(value) || 0);
 
       const today = () => new Date().toISOString().slice(0, 10);
 
@@ -2104,6 +2101,14 @@
             .filter(repayment => repayment.loanId === loanItem.id)
             .reduce((sum, repayment) => sum + Number(repayment.amount), 0);
 
+          const repayments = currentBook.repayments.filter(repayment => repayment.loanId === loanItem.id).sort((a,b) => b.date.localeCompare(a.date));
+          const repaymentHistoryHtml = repayments.map(repayment => {
+            const due = repayment.amountDue != null ? Number(repayment.amountDue) : Number(repayment.interestApplied || 0) + Number(repayment.principalApplied || 0);
+            const remaining = repayment.remainingAfter != null ? Number(repayment.remainingAfter) : Math.max(0, due - Number(repayment.amount || 0));
+            return '<tr><td>' + escapeHtml(repayment.date) + (repayment.amountDue == null ? '<br><span class="muted">legacy record</span>' : '') + '</td><td>' + money(due) + '</td><td>' + money(repayment.amount) + '</td><td>' + (remaining <= .005 ? '<span class="positive">Closed</span>' : money(remaining)) + '</td><td>' + money(repayment.interestApplied) + '</td><td>' + money(repayment.principalApplied) + '</td></tr>';
+          }).join('');
+          const history = repayments.length ? '<div style="margin-top:18px"><div class="card-head" style="margin-bottom:8px"><h2>Repayment history</h2><span class="muted">' + repayments.length + ' ' + (repayments.length === 1 ? 'payment' : 'payments') + '</span></div><div class="table-wrap"><table class="table"><thead><tr><th>Paid on</th><th>Amount due</th><th>Actual returned</th><th>Remaining</th><th>Interest</th><th>Principal</th></tr></thead><tbody>' + repaymentHistoryHtml + '</tbody></table></div></div>' : '';
+
           return `
             <article class="card" style="margin-bottom:12px">
               <div class="card-head">
@@ -2430,102 +2435,52 @@
         showToast('Loan issued at the fixed 3% monthly rate.');
       }
 
+      function updateRepaymentPreview() {
+        const loanId = $('#repayLoanId').value;
+        const loanItem = loan(loanId);
+        const date = $('#repayDate').value;
+        const amount = Number($('#repayAmount').value) || 0;
+        if (!loanItem || !date) { $('#repayPreview').textContent = 'Select a repayment date to calculate the exact amount due.'; return; }
+        const calculations = loanCalc(loanItem, date);
+        const actualReturned = Math.max(0, amount);
+        const remaining = Math.max(0, calculations.total - actualReturned);
+        $('#repayDescription').textContent = `${member(loanItem.memberId)?.name || 'Borrower'} has ${money(calculations.principal)} principal and ${money(calculations.accrued)} accrued interest due on ${date}.`;
+        let message = `Amount to return on ${date}: ${money(calculations.total)}. ` + `Actual money returned: ${money(actualReturned)}. `;
+        if (actualReturned > calculations.total + .005) message += `Overpayment is not allowed. Enter ${money(calculations.total)} or less.`;
+        else if (actualReturned > 0 && remaining > .005) message += `Remaining after this payment: ${money(remaining)}.`;
+        else if (actualReturned > 0) message += 'Remaining after this payment: ₹0.00 — loan will be closed after admin verification.';
+        else message += `Remaining: ${money(calculations.total)}.`;
+        $('#repayPreview').textContent = message;
+      }
+
       function startRepayment(id) {
         const loanItem = loan(id);
-        const calculations = loanCalc(loanItem);
-        const borrower = member(loanItem.memberId);
-
-        $('#repayLoanId').value = id;
-        $('#repayAmount').value = '';
-        $('#repayDate').value = today();
-
-        $('#repayDescription').textContent =
-          `${borrower?.name || 'Borrower'} has ${
-            money(calculations.principal)
-          } principal and ${
-            money(calculations.accrued)
-          } accrued interest due.`;
-
-        $('#repayPreview').textContent =
-          `Payments are allocated interest-first. Current payoff amount: ${
-            money(calculations.total)
-          }.`;
-
-        open('#repayModal');
+        if (!loanItem || loanCalc(loanItem).closed) return;
+        $('#repayLoanId').value = id; $('#repayAmount').value = ''; $('#repayDate').value = today(); $('#repayNote').value = '';
+        updateRepaymentPreview(); open('#repayModal');
       }
 
       function addRepayment(event) {
         event.preventDefault();
-
-        const loanId = $('#repayLoanId').value;
-        const amount = Number($('#repayAmount').value);
-        const date = $('#repayDate').value;
-        const loanItem = loan(loanId);
-
-        if (!loanItem || amount <= 0) {
-          return;
-        }
-
-        requireAuth(
-          'Authenticate repayment',
-          'This payment changes the active loan balance.',
-          async () => {
-            const calculations = loanCalc(loanItem, date);
-
-            const interestApplied = Math.min(
-              amount,
-              calculations.accrued
-            );
-
-            const principalApplied = Math.min(
-              Math.max(0, amount - interestApplied),
-              calculations.principal
-            );
-
-            loanItem.accruedInterest = Math.max(
-              0,
-              calculations.accrued - interestApplied
-            );
-
-            loanItem.interestPaid =
-              Number(loanItem.interestPaid || 0) + interestApplied;
-
-            loanItem.principalPaid =
-              Number(loanItem.principalPaid || 0) + principalApplied;
-
-            loanItem.interestAnchor = date;
-
-            const repayment = {
-              id: uid(),
-              loanId,
-              amount: Number(amount.toFixed(2)),
-              date,
-              interestApplied: Number(interestApplied.toFixed(2)),
-              principalApplied: Number(principalApplied.toFixed(2)),
-              note: $('#repayNote').value.trim()
-            };
-
-            book().repayments.push(repayment);
-
-            addAudit(
-              'repayment',
-              `Repayment applied to ${
-                member(loanItem.memberId)?.name || 'borrower'
-              }`,
-              amount
-            );
-
-            save();
-            close('#repayModal');
-            render();
-
-            showToast(
-              loanCalc(loanItem).closed
-                ? 'Loan closed and paid in full.'
-                : 'Repayment authenticated and applied.'
-            );
-          }
-        );
+        const loanId = $('#repayLoanId').value, amount = Number($('#repayAmount').value), date = $('#repayDate').value, loanItem = loan(loanId);
+        if (!loanItem || !date || amount <= 0) { showToast('Enter a valid repayment amount and date.', false); return; }
+        const calculations = loanCalc(loanItem, date);
+        if (amount > calculations.total + .005) { showToast(`Overpayment is not allowed. Amount due is ${money(calculations.total)}.`, false); updateRepaymentPreview(); return; }
+        requireAuth('Authenticate repayment','Enter the administrator password to record this repayment. The loan will close only after the final payment is authenticated.', async () => {
+          const freshCalculations = loanCalc(loanItem, date), freshAmount = Number($('#repayAmount').value);
+          if (freshAmount > freshCalculations.total + .005) { showToast(`Overpayment is not allowed. Amount due is ${money(freshCalculations.total)}.`, false); return; }
+          const interestApplied = Math.min(freshAmount, freshCalculations.accrued);
+          const principalApplied = Math.min(Math.max(0, freshAmount - interestApplied), freshCalculations.principal);
+          const remainingAfter = Math.max(0, freshCalculations.total - freshAmount);
+          loanItem.accruedInterest = Math.max(0, freshCalculations.accrued - interestApplied);
+          loanItem.interestPaid = Number(loanItem.interestPaid || 0) + interestApplied;
+          loanItem.principalPaid = Number(loanItem.principalPaid || 0) + principalApplied;
+          loanItem.interestAnchor = date;
+          book().repayments.push({ id: uid(), loanId, amount: Number(freshAmount.toFixed(2)), amountDue: Number(freshCalculations.total.toFixed(2)), remainingAfter: Number(remainingAfter.toFixed(2)), date, interestApplied: Number(interestApplied.toFixed(2)), principalApplied: Number(principalApplied.toFixed(2)), note: $('#repayNote').value.trim() });
+          addAudit('repayment', `Repayment applied to ${member(loanItem.memberId)?.name || 'borrower'}`, freshAmount);
+          save(); close('#repayModal'); render();
+          showToast(loanCalc(loanItem).closed ? 'Repayment authenticated. Loan is now closed and paid in full.' : `Repayment authenticated. ${money(remainingAfter)} remains.`);
+        });
       }
 
       function removeMember(id) {
@@ -3041,16 +2996,7 @@
             ]
           ],
 
-          Repayments: [
-            [
-              'Date',
-              'Borrower',
-              'Amount',
-              'Interest applied',
-              'Principal applied',
-              'Note'
-            ]
-          ],
+          Repayments: [[ 'Date', 'Borrower', 'Amount Due', 'Actual Returned', 'Remaining After', 'Interest Applied', 'Principal Applied', 'Note' ]],
 
           'Member Statement': [
             ['Member', 'Date', 'Type', 'Amount', 'Detail']
@@ -3160,10 +3106,15 @@
         });
 
         currentBook.repayments.forEach(repayment => {
+          const legacyDue = Number(repayment.interestApplied || 0) + Number(repayment.principalApplied || 0);
+          const amountDue = repayment.amountDue != null ? Number(repayment.amountDue) : legacyDue;
+          const remainingAfter = repayment.remainingAfter != null ? Number(repayment.remainingAfter) : Math.max(0, amountDue - Number(repayment.amount || 0));
           rows.Repayments.push([
             repayment.date,
             member(loan(repayment.loanId)?.memberId)?.name || 'Unknown',
+            amountDue,
             repayment.amount,
+            remainingAfter,
             repayment.interestApplied,
             repayment.principalApplied,
             repayment.note || ''
@@ -3428,6 +3379,8 @@
         $('#depositForm').addEventListener('submit', addDeposit);
         $('#loanForm').addEventListener('submit', addLoan);
         $('#repayForm').addEventListener('submit', addRepayment);
+        $('#repayDate').addEventListener('change', updateRepaymentPreview);
+        $('#repayAmount').addEventListener('input', updateRepaymentPreview);
 
         $('#depositMember').addEventListener(
           'change',
