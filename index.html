@@ -2784,37 +2784,33 @@
       }
 
       function xml(value) {
-        return escapeHtml(value).replace(/\n/g, '&#10;');
+        const text = String(value ?? '')
+          .replace(/[\\u0000-\\u0008\\u000B\\u000C\\u000E-\\u001F\\uFFFE\\uFFFF]/g, '');
+
+        return escapeHtml(text).replace(/\n/g, '&#10;');
       }
 
       function sheetXml(rows) {
-        return `
-          <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-          <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
-            <sheetData>
-              ${rows.map((row, rowIndex) => `
-                <row r="${rowIndex + 1}">
-                  ${row.map((value, columnIndex) => {
-                    const reference =
-                      col(columnIndex) + (rowIndex + 1);
+        return `<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+          <sheetData>
+            ${rows.map((row, rowIndex) => `
+              <row r="${rowIndex + 1}">
+                ${row.map((value, columnIndex) => {
+                  const reference =
+                    col(columnIndex) + (rowIndex + 1);
 
-                    const isNumber =
-                      typeof value === 'number' &&
-                      !Number.isNaN(value);
+                  const isNumber =
+                    typeof value === 'number' &&
+                    Number.isFinite(value);
 
-                    return isNumber
-                      ? `<c r="${reference}"><v>${value}</v></c>`
-                      : `
-                        <c r="${reference}" t="inlineStr">
-                          <is><t>${xml(value)}</t></is>
-                        </c>
-                      `;
-                  }).join('')}
-                </row>
-              `).join('')}
-            </sheetData>
-          </worksheet>
-        `;
+                  return isNumber
+                    ? `<c r="${reference}"><v>${value}</v></c>`
+                    : `<c r="${reference}" t="inlineStr"><is><t>${xml(value)}</t></is></c>`;
+                }).join('')}
+              </row>
+            `).join('')}
+          </sheetData>
+        </worksheet>`;
       }
 
       function col(number) {
@@ -3157,7 +3153,7 @@
 
         const files = {
           '[Content_Types].xml': `
-            <?xml version="1.0" encoding="UTF-8"?>
+            
             <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
               <Default
                 Extension="rels"
@@ -3181,7 +3177,7 @@
           `,
 
           '_rels/.rels': `
-            <?xml version="1.0" encoding="UTF-8"?>
+            
             <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
               <Relationship
                 Id="rId1"
@@ -3192,7 +3188,7 @@
           `,
 
           'xl/workbook.xml': `
-            <?xml version="1.0" encoding="UTF-8"?>
+            
             <workbook
               xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
               xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
@@ -3210,7 +3206,7 @@
           `,
 
           'xl/_rels/workbook.xml.rels': `
-            <?xml version="1.0" encoding="UTF-8"?>
+            
             <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
               ${names.map((name, index) => `
                 <Relationship
