@@ -1,0 +1,3547 @@
+```html
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#12151B">
+  <title>Friends Funding Manager</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap');
+
+    :root {
+      --surface: #12151B;
+      --surface-2: #1A1E26;
+      --surface-3: #232936;
+      --text: #F0F2F5;
+      --text-2: #C5CBD3;
+      --muted: #8F9AAB;
+      --amber: #F59E0B;
+      --amber-dark: #D97706;
+      --amber-soft: rgba(245, 158, 11, .12);
+      --green: #10B981;
+      --red: #EF4444;
+      --blue: #3B82F6;
+      --border: #2A3241;
+      --divider: #1E2430;
+      --radius: 12px;
+      --shadow: 0 18px 40px rgba(0, 0, 0, .22);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      background: var(--surface);
+      color: var(--text);
+      font-family: 'DM Sans', system-ui, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: var(--surface);
+      color: var(--text);
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: .5;
+    }
+
+    .app-shell {
+      min-height: 100vh;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid var(--divider);
+      background: rgba(18, 21, 27, .96);
+      backdrop-filter: blur(14px);
+    }
+
+    .topbar-inner {
+      max-width: 1440px;
+      margin: auto;
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      background: var(--amber);
+      color: #12151B;
+      font-weight: 800;
+      letter-spacing: -.08em;
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .brand-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 25px;
+      line-height: 1;
+      letter-spacing: .02em;
+    }
+
+    .book-control {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .book-control select,
+    .field input,
+    .field select {
+      border: 1px solid var(--border);
+      background: var(--surface-3);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 11px 12px;
+      outline: none;
+    }
+
+    .book-control select:focus,
+    .field input:focus,
+    .field select:focus {
+      border-color: var(--amber);
+      box-shadow: 0 0 0 3px var(--amber-soft);
+    }
+
+    .main {
+      max-width: 1440px;
+      margin: auto;
+      padding: 30px 24px 90px;
+    }
+
+    .view {
+      display: none;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 4px 0 24px;
+    }
+
+    .section-heading h1 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 42px;
+      line-height: .95;
+      margin: 0;
+      letter-spacing: .01em;
+    }
+
+    .section-heading p {
+      color: var(--muted);
+      margin: 8px 0 0;
+      font-size: 14px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 11px 15px;
+      background: var(--surface-2);
+      color: var(--text);
+      font-weight: 700;
+      min-height: 44px;
+      transition: transform .16s, background .16s, border-color .16s;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      border-color: var(--muted);
+    }
+
+    .btn.primary {
+      background: var(--amber);
+      border-color: var(--amber);
+      color: #12151B;
+    }
+
+    .btn.ghost {
+      background: transparent;
+    }
+
+    .btn.danger {
+      color: #fecaca;
+      border-color: rgba(239, 68, 68, .45);
+    }
+
+    .btn.small {
+      min-height: 36px;
+      padding: 8px 11px;
+      font-size: 12px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      min-height: 140px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card:after {
+      content: '';
+      position: absolute;
+      right: -26px;
+      top: -28px;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      opacity: .55;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-weight: 700;
+    }
+
+    .stat-value {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 34px;
+      margin: 15px 0 8px;
+      letter-spacing: .01em;
+    }
+
+    .stat-meta {
+      color: var(--text-2);
+      font-size: 12px;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1.35fr .65fr;
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+
+    .card h2 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 23px;
+      margin: 0 0 16px;
+      letter-spacing: .02em;
+    }
+
+    .card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+
+    .card-head h2 {
+      margin: 0;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 620px;
+    }
+
+    .table th {
+      text-align: left;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    .table td {
+      padding: 13px 12px;
+      border-bottom: 1px solid var(--divider);
+      font-size: 13px;
+      vertical-align: middle;
+    }
+
+    .table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .table .right {
+      text-align: right;
+    }
+
+    .empty {
+      padding: 32px 18px;
+      text-align: center;
+      color: var(--muted);
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 11px;
+      font-weight: 800;
+      background: var(--surface-3);
+      color: var(--text-2);
+    }
+
+    .badge.green {
+      background: rgba(16, 185, 129, .14);
+      color: #6ee7b7;
+    }
+
+    .badge.amber {
+      background: var(--amber-soft);
+      color: #fbbf24;
+    }
+
+    .badge.red {
+      background: rgba(239, 68, 68, .14);
+      color: #fca5a5;
+    }
+
+    .nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 20;
+      border-top: 1px solid var(--divider);
+      background: rgba(18, 21, 27, .98);
+      padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+      display: flex;
+      justify-content: center;
+    }
+
+    .nav-inner {
+      width: min(700px, 100%);
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 7px;
+    }
+
+    .nav button {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      border-radius: 9px;
+      padding: 9px 4px;
+      min-height: 54px;
+      font-weight: 700;
+      font-size: 11px;
+    }
+
+    .nav button .nav-icon {
+      display: block;
+      font-size: 20px;
+      line-height: 20px;
+      margin-bottom: 3px;
+    }
+
+    .nav button.active {
+      background: var(--amber-soft);
+      color: var(--amber);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 15px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .field label {
+      font-size: 12px;
+      color: var(--text-2);
+      font-weight: 700;
+    }
+
+    .field small {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .modal {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--surface-2);
+      color: var(--text);
+      width: min(560px, calc(100% - 28px));
+      padding: 0;
+      box-shadow: var(--shadow);
+    }
+
+    .modal::backdrop {
+      background: rgba(0, 0, 0, .72);
+    }
+
+    .modal-body {
+      padding: 24px;
+    }
+
+    .modal h2 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 30px;
+      margin: 0 0 6px;
+    }
+
+    .modal p {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+      margin: 0 0 20px;
+    }
+
+    .toast {
+      position: fixed;
+      right: 22px;
+      bottom: 92px;
+      z-index: 40;
+      max-width: 350px;
+      padding: 13px 16px;
+      border-radius: 9px;
+      border: 1px solid var(--border);
+      background: var(--surface-3);
+      box-shadow: var(--shadow);
+      font-size: 13px;
+      display: none;
+    }
+
+    .toast.show {
+      display: block;
+      animation: toast-in .2s ease-out;
+    }
+
+    .toast.good {
+      border-color: rgba(16, 185, 129, .5);
+    }
+
+    .toast.bad {
+      border-color: rgba(239, 68, 68, .5);
+    }
+
+    @keyframes toast-in {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .quick {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface-3);
+      padding: 15px;
+      text-align: left;
+      color: var(--text);
+      min-height: 92px;
+    }
+
+    .quick strong {
+      display: block;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 20px;
+      margin-top: 8px;
+    }
+
+    .quick span {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .feed {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .feed-row {
+      display: flex;
+      gap: 12px;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--divider);
+    }
+
+    .feed-row:last-child {
+      border-bottom: 0;
+    }
+
+    .feed-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--amber);
+      margin-top: 6px;
+      flex: none;
+    }
+
+    .feed-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .feed-main strong {
+      font-size: 13px;
+    }
+
+    .feed-main p {
+      color: var(--muted);
+      font-size: 12px;
+      margin: 4px 0 0;
+    }
+
+    .feed-amount {
+      font-weight: 700;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .meter {
+      height: 7px;
+      background: var(--surface-3);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .meter span {
+      display: block;
+      height: 100%;
+      background: var(--amber);
+      border-radius: 99px;
+    }
+
+    .notice {
+      border: 1px solid rgba(245, 158, 11, .35);
+      background: var(--amber-soft);
+      border-radius: 10px;
+      padding: 13px 14px;
+      color: #fcd34d;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      overflow: auto;
+      margin-bottom: 17px;
+    }
+
+    .tab {
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 9px 14px;
+      white-space: nowrap;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .tab.active {
+      background: var(--amber);
+      border-color: var(--amber);
+      color: #12151B;
+    }
+
+    .security-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .security-card {
+      min-height: 220px;
+    }
+
+    .security-card .icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--amber-soft);
+      color: var(--amber);
+      display: grid;
+      place-items: center;
+      font-size: 20px;
+      margin-bottom: 16px;
+    }
+
+    .security-card h3 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 23px;
+      margin: 0 0 7px;
+    }
+
+    .security-card p {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+      margin: 0 0 18px;
+    }
+
+    .onboarding {
+      max-width: 520px;
+      margin: 12vh auto 0;
+      text-align: center;
+    }
+
+    .onboarding .brand-mark {
+      margin: 0 auto 16px;
+      width: 52px;
+      height: 52px;
+      font-size: 20px;
+    }
+
+    .onboarding h1 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 44px;
+      line-height: .95;
+      margin: 0 0 12px;
+    }
+
+    .onboarding p {
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .onboarding .card {
+      text-align: left;
+      margin-top: 28px;
+    }
+
+    .locked {
+      display: none;
+    }
+
+    .locked.show {
+      display: block;
+    }
+
+    .danger-zone {
+      border-color: rgba(239, 68, 68, .4);
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .positive {
+      color: #6ee7b7;
+    }
+
+    .negative {
+      color: #fca5a5;
+    }
+
+    .nowrap {
+      white-space: nowrap;
+    }
+
+    @media (max-width: 920px) {
+      .stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .split {
+        grid-template-columns: 1fr;
+      }
+
+      .security-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .topbar-inner {
+        padding: 14px 16px;
+        align-items: flex-start;
+      }
+
+      .brand-title {
+        font-size: 21px;
+      }
+
+      .brand .eyebrow {
+        display: none;
+      }
+
+      .book-control {
+        flex-direction: column;
+        align-items: flex-end;
+      }
+
+      .book-control select {
+        max-width: 110px;
+        padding: 9px;
+      }
+
+      .main {
+        padding: 24px 16px 100px;
+      }
+
+      .section-heading {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .section-heading h1 {
+        font-size: 36px;
+      }
+
+      .stats {
+        gap: 9px;
+      }
+
+      .stat-card {
+        padding: 14px;
+        min-height: 126px;
+      }
+
+      .stat-value {
+        font-size: 29px;
+        margin: 13px 0 6px;
+      }
+
+      .card {
+        padding: 16px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .field.full {
+        grid-column: auto;
+      }
+
+      .quick-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .actions {
+        width: 100%;
+      }
+
+      .actions .btn {
+        flex: 1;
+      }
+
+      .table th,
+      .table td {
+        padding-left: 8px;
+        padding-right: 8px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="setup" class="app-shell locked">
+    <main class="main">
+      <section class="onboarding">
+        <div class="brand-mark">FF</div>
+        <div class="eyebrow">Private offline ledger</div>
+        <h1>Friends Funding<br>Manager</h1>
+        <p>
+          Create the administrator password for this device. It is converted
+          to a SHA-256 hash and never stored in plain text.
+        </p>
+
+        <div class="card">
+          <form id="setupForm">
+            <div class="field">
+              <label for="setupPassword">Admin password</label>
+              <input
+                id="setupPassword"
+                type="password"
+                minlength="8"
+                autocomplete="new-password"
+                required
+                placeholder="At least 8 characters"
+              >
+            </div>
+
+            <div class="field" style="margin-top:14px">
+              <label for="setupConfirm">Confirm password</label>
+              <input
+                id="setupConfirm"
+                type="password"
+                minlength="8"
+                autocomplete="new-password"
+                required
+                placeholder="Repeat password"
+              >
+            </div>
+
+            <div class="notice" style="margin-top:16px">
+              A secure default hash is bundled as a recovery baseline.
+              Your password becomes the active credential on this device.
+            </div>
+
+            <button
+              class="btn primary"
+              style="width:100%;margin-top:18px"
+              type="submit"
+            >
+              Create secure ledger
+            </button>
+          </form>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="app" class="app-shell locked">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand">
+          <div class="brand-mark">FF</div>
+
+          <div>
+            <div class="eyebrow">Funding command center</div>
+            <div class="brand-title">Friends Funding Manager</div>
+          </div>
+        </div>
+
+        <div class="book-control">
+          <label class="eyebrow" for="yearSelect">Active book</label>
+          <select id="yearSelect" aria-label="Active book year"></select>
+          <button class="btn small" id="newYearBtn" type="button">+ Year</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="main">
+      <section id="dashboardView" class="view active">
+        <div class="section-heading">
+          <div>
+            <h1>Dashboard</h1>
+            <p id="dashboardSubtitle">Your funding book at a glance.</p>
+          </div>
+
+          <div class="actions">
+            <button class="btn primary" data-action="deposit">
+              + Record deposit
+            </button>
+            <button class="btn" data-action="loan">Issue loan</button>
+          </div>
+        </div>
+
+        <div class="stats">
+          <article class="stat-card">
+            <div class="stat-label">Cash in account</div>
+            <div class="stat-value" id="statCash">$0.00</div>
+            <div class="stat-meta">Deposits − loans + repayments</div>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-label">Member deposits</div>
+            <div class="stat-value" id="statDeposits">$0.00</div>
+            <div class="stat-meta" id="statDepositCount">
+              0 entries recorded
+            </div>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-label">Outstanding loans</div>
+            <div class="stat-value" id="statOutstanding">$0.00</div>
+            <div class="stat-meta" id="statLoanCount">
+              0 active loans
+            </div>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-label">Interest acquired</div>
+            <div class="stat-value" id="statInterest">$0.00</div>
+            <div class="stat-meta" id="statPending">
+              $0.00 pending accrual
+            </div>
+          </article>
+        </div>
+
+        <div class="split">
+          <div class="card">
+            <div class="card-head">
+              <h2>Quick actions</h2>
+              <span class="badge amber" id="memberCountBadge">0 members</span>
+            </div>
+
+            <div class="quick-grid">
+              <button class="quick" data-action="member">
+                <span>Governance</span>
+                <strong>Add member →</strong>
+              </button>
+
+              <button class="quick" data-action="deposit">
+                <span>Monthly ledger</span>
+                <strong>Record deposit →</strong>
+              </button>
+
+              <button class="quick" data-action="loan">
+                <span>Credit book</span>
+                <strong>Issue a loan →</strong>
+              </button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <h2>Recent audit trail</h2>
+              <span class="muted" id="auditCount">0 events</span>
+            </div>
+
+            <div id="recentFeed" class="feed"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="membersView" class="view">
+        <div class="section-heading">
+          <div>
+            <h1>Members</h1>
+            <p>
+              Monthly limits are immutable after creation for this book.
+            </p>
+          </div>
+
+          <button class="btn primary" data-action="member">
+            + Add member
+          </button>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h2>Member directory</h2>
+            <span class="badge" id="memberDirectoryCount">
+              0 contributors
+            </span>
+          </div>
+
+          <div id="membersTable"></div>
+        </div>
+      </section>
+
+      <section id="depositsView" class="view">
+        <div class="section-heading">
+          <div>
+            <h1>Deposits</h1>
+            <p>
+              Record one monthly contribution at a time.
+              The ceiling is enforced automatically.
+            </p>
+          </div>
+
+          <button class="btn primary" data-action="deposit">
+            + Record deposit
+          </button>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h2>Monthly deposit grid</h2>
+            <span class="badge amber" id="depositYearLabel"></span>
+          </div>
+
+          <div id="depositGrid"></div>
+        </div>
+
+        <div class="card" style="margin-top:16px">
+          <div class="card-head">
+            <h2>Deposit activity</h2>
+            <span class="muted" id="depositActivityCount"></span>
+          </div>
+
+          <div id="depositLog"></div>
+        </div>
+      </section>
+
+      <section id="loansView" class="view">
+        <div class="section-heading">
+          <div>
+            <h1>Loans</h1>
+            <p>
+              Flat 3% monthly interest. Every repayment clears accrued
+              interest before principal.
+            </p>
+          </div>
+
+          <button class="btn primary" data-action="loan">
+            + Issue loan
+          </button>
+        </div>
+
+        <div class="tabs">
+          <button class="tab active" data-loan-filter="active">
+            Active loans
+          </button>
+
+          <button class="tab" data-loan-filter="closed">
+            Closed & paid
+          </button>
+
+          <button class="tab" data-loan-filter="all">
+            All loans
+          </button>
+        </div>
+
+        <div id="loansList"></div>
+      </section>
+
+      <section id="securityView" class="view">
+        <div class="section-heading">
+          <div>
+            <h1>Security & export</h1>
+            <p>
+              Keep the private book portable without sending data to a server.
+            </p>
+          </div>
+
+          <span class="badge green">Local-only storage</span>
+        </div>
+
+        <div class="security-grid">
+          <article class="card security-card">
+            <div class="icon">⌁</div>
+            <h3>Encrypted .ffm backup</h3>
+            <p>
+              Export the active book as an AES-256-GCM encrypted archive.
+              A backup password is required to unlock it later.
+            </p>
+
+            <button class="btn primary" id="exportFfmBtn">
+              Export .ffm
+            </button>
+
+            <button class="btn" style="margin-left:7px" id="importFfmBtn">
+              Import
+            </button>
+
+            <input
+              id="importFile"
+              type="file"
+              accept=".ffm,application/json"
+              hidden
+            >
+          </article>
+
+          <article class="card security-card">
+            <div class="icon">▦</div>
+            <h3>Excel workbook</h3>
+            <p>
+              Generate a native multi-sheet .xlsx workbook with summaries,
+              deposit grid, loans, repayments, statements, and audit history.
+            </p>
+
+            <button class="btn primary" id="exportXlsxBtn">
+              Export .xlsx
+            </button>
+          </article>
+
+          <article class="card security-card">
+            <div class="icon">⌑</div>
+            <h3>Administrator credential</h3>
+            <p>
+              Administrative actions use SHA-256 verification.
+              Change the password whenever the group’s leadership changes.
+            </p>
+
+            <button class="btn" id="changePasswordBtn">
+              Change password
+            </button>
+          </article>
+
+          <article class="card security-card danger-zone">
+            <div class="icon">!</div>
+            <h3>Reset this book</h3>
+            <p>
+              Delete all members, deposits, loans, repayments, and audit events
+              from the active year. This cannot be undone.
+            </p>
+
+            <button class="btn danger" id="resetBookBtn">
+              Reset active book
+            </button>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <nav class="nav">
+      <div class="nav-inner">
+        <button class="active" data-view="dashboard">
+          <span class="nav-icon">⌂</span>
+          Dashboard
+        </button>
+
+        <button data-view="members">
+          <span class="nav-icon">♙</span>
+          Members
+        </button>
+
+        <button data-view="deposits">
+          <span class="nav-icon">▤</span>
+          Deposits
+        </button>
+
+        <button data-view="loans">
+          <span class="nav-icon">↗</span>
+          Loans
+        </button>
+
+        <button data-view="security">
+          <span class="nav-icon">⚿</span>
+          Security
+        </button>
+      </div>
+    </nav>
+  </div>
+
+  <dialog id="memberModal" class="modal">
+    <div class="modal-body">
+      <h2>Add member</h2>
+      <p>
+        The monthly limit is locked into this year’s book as soon as you save.
+      </p>
+
+      <form id="memberForm">
+        <div class="form-grid">
+          <div class="field full">
+            <label for="memberName">Full name</label>
+            <input
+              id="memberName"
+              required
+              maxlength="80"
+              placeholder="e.g. Jordan Lee"
+            >
+          </div>
+
+          <div class="field">
+            <label for="memberEmail">
+              Email or phone <span class="muted">(optional)</span>
+            </label>
+            <input
+              id="memberEmail"
+              maxlength="100"
+              placeholder="Contact reference"
+            >
+          </div>
+
+          <div class="field">
+            <label for="memberLimit">Fixed monthly limit</label>
+            <input
+              id="memberLimit"
+              type="number"
+              min="0.01"
+              step="0.01"
+              required
+              placeholder="0.00"
+            >
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn" data-close="memberModal">
+            Cancel
+          </button>
+
+          <button class="btn primary" type="submit">
+            Lock member limit
+          </button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <dialog id="depositModal" class="modal">
+    <div class="modal-body">
+      <h2>Record deposit</h2>
+      <p>
+        Deposits cannot exceed the member’s immutable monthly limit.
+      </p>
+
+      <form id="depositForm">
+        <div class="form-grid">
+          <div class="field">
+            <label for="depositMember">Member</label>
+            <select id="depositMember" required></select>
+          </div>
+
+          <div class="field">
+            <label for="depositMonth">Month</label>
+            <select id="depositMonth" required></select>
+          </div>
+
+          <div class="field">
+            <label for="depositAmount">Amount</label>
+            <input
+              id="depositAmount"
+              type="number"
+              min="0.01"
+              step="0.01"
+              required
+              placeholder="0.00"
+            >
+          </div>
+
+          <div class="field">
+            <label for="depositDate">Recorded on</label>
+            <input id="depositDate" type="date" required>
+          </div>
+
+          <div class="field full">
+            <label for="depositNote">
+              Note <span class="muted">(optional)</span>
+            </label>
+            <input
+              id="depositNote"
+              maxlength="120"
+              placeholder="Reference or context"
+            >
+          </div>
+        </div>
+
+        <div id="depositLimitHint" class="notice" style="margin-top:16px"></div>
+
+        <div class="form-actions">
+          <button type="button" class="btn" data-close="depositModal">
+            Cancel
+          </button>
+
+          <button class="btn primary" type="submit">
+            Save deposit
+          </button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <dialog id="loanModal" class="modal">
+    <div class="modal-body">
+      <h2>Issue loan</h2>
+      <p>
+        A 3% flat monthly rate is applied to the outstanding principal.
+        Accrual is calculated by completed calendar months.
+      </p>
+
+      <form id="loanForm">
+        <div class="form-grid">
+          <div class="field">
+            <label for="loanMember">Borrower</label>
+            <select id="loanMember" required></select>
+          </div>
+
+          <div class="field">
+            <label for="loanPrincipal">Principal</label>
+            <input
+              id="loanPrincipal"
+              type="number"
+              min="0.01"
+              step="0.01"
+              required
+              placeholder="0.00"
+            >
+          </div>
+
+          <div class="field">
+            <label for="loanDate">Issued on</label>
+            <input id="loanDate" type="date" required>
+          </div>
+
+          <div class="field">
+            <label for="loanPurpose">
+              Purpose <span class="muted">(optional)</span>
+            </label>
+            <input
+              id="loanPurpose"
+              maxlength="120"
+              placeholder="What is it for?"
+            >
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn" data-close="loanModal">
+            Cancel
+          </button>
+
+          <button class="btn primary" type="submit">
+            Issue loan
+          </button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <dialog id="repayModal" class="modal">
+    <div class="modal-body">
+      <h2>Record repayment</h2>
+      <p id="repayDescription"></p>
+
+      <form id="repayForm">
+        <input id="repayLoanId" type="hidden">
+
+        <div class="form-grid">
+          <div class="field">
+            <label for="repayAmount">Payment amount</label>
+            <input
+              id="repayAmount"
+              type="number"
+              min="0.01"
+              step="0.01"
+              required
+              placeholder="0.00"
+            >
+          </div>
+
+          <div class="field">
+            <label for="repayDate">Paid on</label>
+            <input id="repayDate" type="date" required>
+          </div>
+
+          <div class="field full">
+            <label for="repayNote">
+              Note <span class="muted">(optional)</span>
+            </label>
+            <input
+              id="repayNote"
+              maxlength="120"
+              placeholder="Receipt or context"
+            >
+          </div>
+        </div>
+
+        <div id="repayPreview" class="notice" style="margin-top:16px"></div>
+
+        <div class="form-actions">
+          <button type="button" class="btn" data-close="repayModal">
+            Cancel
+          </button>
+
+          <button class="btn primary" type="submit">
+            Authenticate & save
+          </button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <dialog id="authModal" class="modal">
+    <div class="modal-body">
+      <h2 id="authTitle">Administrator check</h2>
+      <p id="authMessage">
+        Enter the administrator password to continue.
+      </p>
+
+      <form id="authForm">
+        <input id="authContext" type="hidden">
+
+        <div class="field">
+          <label for="authPassword">Admin password</label>
+          <input
+            id="authPassword"
+            type="password"
+            autocomplete="current-password"
+            required
+          >
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn" data-close="authModal">
+            Cancel
+          </button>
+
+          <button class="btn primary" type="submit">
+            Verify password
+          </button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <dialog id="passwordModal" class="modal">
+    <div class="modal-body">
+      <h2>Change administrator password</h2>
+      <p>
+        Use at least 8 characters. The new credential is stored only as a
+        SHA-256 hash.
+      </p>
+
+      <form id="passwordForm">
+        <div class="field">
+          <label for="currentPassword">Current password</label>
+          <input id="currentPassword" type="password" required>
+        </div>
+
+        <div class="field" style="margin-top:14px">
+          <label for="newPassword">New password</label>
+          <input id="newPassword" type="password" minlength="8" required>
+        </div>
+
+        <div class="field" style="margin-top:14px">
+          <label for="confirmPassword">Confirm new password</label>
+          <input
+            id="confirmPassword"
+            type="password"
+            minlength="8"
+            required
+          >
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn" data-close="passwordModal">
+            Cancel
+          </button>
+
+          <button class="btn primary" type="submit">
+            Update password
+          </button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <dialog id="yearModal" class="modal">
+    <div class="modal-body">
+      <h2>Initialize a new book</h2>
+      <p>
+        Each year is isolated: members, limits, deposits, loans, repayments,
+        and audit history do not cross books.
+      </p>
+
+      <form id="yearForm">
+        <div class="field">
+          <label for="newYear">Calendar year</label>
+          <input
+            id="newYear"
+            type="number"
+            min="2000"
+            max="2200"
+            required
+          >
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn" data-close="yearModal">
+            Cancel
+          </button>
+
+          <button class="btn primary" type="submit">
+            Initialize book
+          </button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast" role="status"></div>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const STORE = 'ffm_local_v1';
+      const RATE = .03;
+      const DEFAULT_HASH =
+        '8bd5adce17f55a3039d5ce769aefa2c91a7e8494fd321f1499a447bad6fd1e92';
+
+      const MONTHS = [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December'
+      ];
+
+      const $ = selector => document.querySelector(selector);
+      const $$ = selector => [...document.querySelectorAll(selector)];
+
+      const money = value =>
+        new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: 'USD'
+        }).format(Number(value) || 0);
+
+      const today = () => new Date().toISOString().slice(0, 10);
+
+      const uid = () =>
+        crypto.randomUUID
+          ? crypto.randomUUID()
+          : Date.now().toString(36) + Math.random().toString(36).slice(2);
+
+      let state = load();
+      let activeYear = String(new Date().getFullYear());
+      let loanFilter = 'active';
+      let pendingAuth = null;
+
+      function load() {
+        try {
+          return JSON.parse(localStorage.getItem(STORE)) || {
+            version: 1,
+            adminHash: null,
+            books: {}
+          };
+        } catch {
+          return {
+            version: 1,
+            adminHash: null,
+            books: {}
+          };
+        }
+      }
+
+      function save() {
+        localStorage.setItem(STORE, JSON.stringify(state));
+      }
+
+      function blankBook(year) {
+        return {
+          year: Number(year),
+          members: [],
+          deposits: [],
+          loans: [],
+          repayments: [],
+          audit: []
+        };
+      }
+
+      function book() {
+        if (!state.books[activeYear]) {
+          state.books[activeYear] = blankBook(activeYear);
+          save();
+        }
+
+        return state.books[activeYear];
+      }
+
+      function escapeHtml(value) {
+        return String(value ?? '').replace(
+          /[&<>'"]/g,
+          character => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            "'": '&#39;',
+            '"': '&quot;'
+          }[character])
+        );
+      }
+
+      function hash(value) {
+        return crypto.subtle
+          .digest(
+            'SHA-256',
+            new TextEncoder().encode(value)
+          )
+          .then(buffer =>
+            [...new Uint8Array(buffer)]
+              .map(byte => byte.toString(16).padStart(2, '0'))
+              .join('')
+          );
+      }
+
+      function dateObj(value) {
+        const date = new Date(value + 'T00:00:00');
+        return Number.isNaN(date.getTime()) ? new Date() : date;
+      }
+
+      function completedMonths(start, end = today()) {
+        const startDate = dateObj(start);
+        const endDate = dateObj(end);
+
+        let months =
+          (endDate.getFullYear() - startDate.getFullYear()) * 12 +
+          endDate.getMonth() -
+          startDate.getMonth();
+
+        if (endDate.getDate() < startDate.getDate()) {
+          months--;
+        }
+
+        return Math.max(0, months);
+      }
+
+      function addAudit(type, message, amount = 0) {
+        book().audit.unshift({
+          id: uid(),
+          type,
+          message,
+          amount: Number(amount) || 0,
+          date: new Date().toISOString()
+        });
+
+        book().audit = book().audit.slice(0, 250);
+      }
+
+      function member(id) {
+        return book().members.find(item => item.id === id);
+      }
+
+      function loan(id) {
+        return book().loans.find(item => item.id === id);
+      }
+
+      function loanCalc(loanItem, asOf = today()) {
+        const principal = Math.max(
+          0,
+          Number(loanItem.principal) -
+          Number(loanItem.principalPaid || 0)
+        );
+
+        const accrued = Math.max(
+          0,
+          Number(loanItem.accruedInterest || 0) +
+          principal *
+          RATE *
+          completedMonths(
+            loanItem.interestAnchor || loanItem.issueDate,
+            asOf
+          )
+        );
+
+        const paidInterest = Number(loanItem.interestPaid || 0);
+
+        return {
+          principal,
+          accrued,
+          paidInterest,
+          total: principal + accrued,
+          months: completedMonths(loanItem.issueDate, asOf),
+          closed: principal < .005 && accrued < .005
+        };
+      }
+
+      function bookTotals() {
+        const currentBook = book();
+
+        const deposits = currentBook.deposits.reduce(
+          (sum, item) => sum + Number(item.amount),
+          0
+        );
+
+        const loansGiven = currentBook.loans.reduce(
+          (sum, item) => sum + Number(item.principal),
+          0
+        );
+
+        const repayments = currentBook.repayments.reduce(
+          (sum, item) => sum + Number(item.amount),
+          0
+        );
+
+        let outstanding = 0;
+        let pending = 0;
+        let interestPaid = 0;
+
+        currentBook.loans.forEach(loanItem => {
+          const calculations = loanCalc(loanItem);
+
+          outstanding += calculations.total;
+          pending += calculations.accrued;
+          interestPaid += calculations.paidInterest;
+        });
+
+        return {
+          deposits,
+          loansGiven,
+          repayments,
+          cash: deposits - loansGiven + repayments,
+          outstanding,
+          pending,
+          interestPaid
+        };
+      }
+
+      function showToast(text, good = true) {
+        const toast = $('#toast');
+
+        toast.textContent = text;
+        toast.className = 'toast show ' + (good ? 'good' : 'bad');
+
+        clearTimeout(showToast.timer);
+
+        showToast.timer = setTimeout(() => {
+          toast.className = 'toast';
+        }, 3600);
+      }
+
+      function open(selector) {
+        $(selector).showModal();
+      }
+
+      function close(selector) {
+        $(selector).close();
+      }
+
+      function renderYears() {
+        const years = Object.keys(state.books).sort((a, b) => b - a);
+
+        if (!years.length) {
+          state.books[activeYear] = blankBook(activeYear);
+          years.push(activeYear);
+          save();
+        }
+
+        if (!state.books[activeYear]) {
+          activeYear = years[0];
+        }
+
+        $('#yearSelect').innerHTML = years
+          .map(year => `
+            <option
+              value="${year}"
+              ${year === activeYear ? 'selected' : ''}
+            >
+              ${year}
+            </option>
+          `)
+          .join('');
+      }
+
+      function render() {
+        renderYears();
+
+        const currentBook = book();
+        const totals = bookTotals();
+
+        $('#dashboardSubtitle').textContent =
+          `${currentBook.year} book · all changes saved privately on this device.`;
+
+        $('#statCash').textContent = money(totals.cash);
+        $('#statDeposits').textContent = money(totals.deposits);
+
+        $('#statDepositCount').textContent =
+          `${currentBook.deposits.length} ${
+            currentBook.deposits.length === 1 ? 'entry' : 'entries'
+          } recorded`;
+
+        $('#statOutstanding').textContent = money(totals.outstanding);
+
+        $('#statLoanCount').textContent =
+          `${currentBook.loans.filter(item => !loanCalc(item).closed).length} active loans`;
+
+        $('#statInterest').textContent = money(totals.interestPaid);
+        $('#statPending').textContent =
+          `${money(totals.pending)} pending accrual`;
+
+        $('#memberCountBadge').textContent =
+          `${currentBook.members.length} ${
+            currentBook.members.length === 1 ? 'member' : 'members'
+          }`;
+
+        $('#auditCount').textContent =
+          `${currentBook.audit.length} events`;
+
+        renderFeed();
+        renderMembers();
+        renderDeposits();
+        renderLoans();
+      }
+
+      function renderFeed() {
+        const rows = book().audit.slice(0, 6);
+
+        $('#recentFeed').innerHTML = rows.length
+          ? rows
+              .map(item => `
+                <div class="feed-row">
+                  <span class="feed-dot"></span>
+
+                  <div class="feed-main">
+                    <strong>${escapeHtml(item.message)}</strong>
+                    <p>${new Date(item.date).toLocaleString()}</p>
+                  </div>
+
+                  ${
+                    item.amount
+                      ? `<span class="feed-amount">${money(item.amount)}</span>`
+                      : ''
+                  }
+                </div>
+              `)
+              .join('')
+          : '<div class="empty">Your audit trail will appear here.</div>';
+      }
+
+      function renderMembers() {
+        const currentBook = book();
+
+        $('#memberDirectoryCount').textContent =
+          `${currentBook.members.length} contributors`;
+
+        if (!currentBook.members.length) {
+          $('#membersTable').innerHTML =
+            '<div class="empty">No members in this book yet. Add the first contributor and lock their monthly ceiling.</div>';
+          return;
+        }
+
+        $('#membersTable').innerHTML = `
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Member</th>
+                  <th>Fixed limit</th>
+                  <th>YTD deposits</th>
+                  <th>Loan standing</th>
+                  <th></th>
+                </tr>
+              </thead>
+
+              <tbody>
+                ${currentBook.members.map(item => {
+                  const deposits = currentBook.deposits
+                    .filter(deposit => deposit.memberId === item.id)
+                    .reduce((sum, deposit) => sum + Number(deposit.amount), 0);
+
+                  const memberLoans = currentBook.loans
+                    .filter(loanItem => loanItem.memberId === item.id);
+
+                  const outstanding = memberLoans.reduce(
+                    (sum, loanItem) => sum + loanCalc(loanItem).total,
+                    0
+                  );
+
+                  return `
+                    <tr>
+                      <td>
+                        <strong>${escapeHtml(item.name)}</strong>
+                        <br>
+                        <span class="muted">
+                          ${escapeHtml(item.contact || 'No contact reference')}
+                        </span>
+                      </td>
+
+                      <td class="nowrap">
+                        ${money(item.monthlyLimit)}
+                        <br>
+                        <span class="muted">immutable</span>
+                      </td>
+
+                      <td>${money(deposits)}</td>
+
+                      <td>
+                        ${
+                          outstanding
+                            ? money(outstanding)
+                            : '<span class="positive">Clear</span>'
+                        }
+                      </td>
+
+                      <td class="right">
+                        <button
+                          class="btn small danger"
+                          data-delete-member="${item.id}"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      function renderDeposits() {
+        const currentBook = book();
+
+        $('#depositYearLabel').textContent = String(currentBook.year);
+        $('#depositActivityCount').textContent =
+          `${currentBook.deposits.length} entries`;
+
+        if (!currentBook.members.length) {
+          $('#depositGrid').innerHTML =
+            '<div class="empty">Add members before recording deposits.</div>';
+        } else {
+          $('#depositGrid').innerHTML = `
+            <div class="table-wrap">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Member</th>
+                    ${MONTHS.map(month => `
+                      <th class="right">${month.slice(0, 3)}</th>
+                    `).join('')}
+                    <th class="right">Total</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  ${currentBook.members.map(item => {
+                    let total = 0;
+
+                    const cells = MONTHS.map((month, index) => {
+                      const value = currentBook.deposits
+                        .filter(deposit =>
+                          deposit.memberId === item.id &&
+                          Number(deposit.month) === index
+                        )
+                        .reduce(
+                          (sum, deposit) => sum + Number(deposit.amount),
+                          0
+                        );
+
+                      total += value;
+
+                      return `
+                        <td class="right">
+                          ${
+                            value
+                              ? money(value)
+                              : '<span class="muted">—</span>'
+                          }
+                        </td>
+                      `;
+                    }).join('');
+
+                    return `
+                      <tr>
+                        <td>
+                          <strong>${escapeHtml(item.name)}</strong>
+                          <br>
+                          <span class="muted">
+                            limit ${money(item.monthlyLimit)}/mo
+                          </span>
+                        </td>
+
+                        ${cells}
+
+                        <td class="right">
+                          <strong>${money(total)}</strong>
+                        </td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+          `;
+        }
+
+        $('#depositLog').innerHTML = currentBook.deposits.length
+          ? `
+            <div class="table-wrap">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Member</th>
+                    <th>Month</th>
+                    <th>Note</th>
+                    <th class="right">Amount</th>
+                    <th></th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  ${[...currentBook.deposits]
+                    .sort((a, b) => b.date.localeCompare(a.date))
+                    .map(deposit => `
+                      <tr>
+                        <td>${escapeHtml(deposit.date)}</td>
+                        <td>
+                          ${escapeHtml(
+                            member(deposit.memberId)?.name || 'Unknown'
+                          )}
+                        </td>
+                        <td>${MONTHS[deposit.month]}</td>
+                        <td class="muted">
+                          ${escapeHtml(deposit.note || '—')}
+                        </td>
+                        <td class="right">${money(deposit.amount)}</td>
+                        <td class="right">
+                          <button
+                            class="btn small danger"
+                            data-delete-deposit="${deposit.id}"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    `)
+                    .join('')}
+                </tbody>
+              </table>
+            </div>
+          `
+          : '<div class="empty">No deposits recorded for this book.</div>';
+      }
+
+      function renderLoans() {
+        const currentBook = book();
+
+        const list = currentBook.loans.filter(item =>
+          loanFilter === 'all' ||
+          (loanFilter === 'active'
+            ? !loanCalc(item).closed
+            : loanCalc(item).closed)
+        );
+
+        if (!list.length) {
+          $('#loansList').innerHTML =
+            '<div class="card empty">No loans match this view.</div>';
+          return;
+        }
+
+        $('#loansList').innerHTML = list.map(loanItem => {
+          const calculations = loanCalc(loanItem);
+          const borrower = member(loanItem.memberId);
+
+          const paid = currentBook.repayments
+            .filter(repayment => repayment.loanId === loanItem.id)
+            .reduce((sum, repayment) => sum + Number(repayment.amount), 0);
+
+          return `
+            <article class="card" style="margin-bottom:12px">
+              <div class="card-head">
+                <div>
+                  <h2>${escapeHtml(borrower?.name || 'Unknown borrower')}</h2>
+                  <div class="muted">
+                    Issued ${escapeHtml(loanItem.issueDate)}
+                    ${
+                      loanItem.purpose
+                        ? '· ' + escapeHtml(loanItem.purpose)
+                        : ''
+                    }
+                  </div>
+                </div>
+
+                <span class="badge ${calculations.closed ? 'green' : 'amber'}">
+                  ${calculations.closed ? 'Closed & paid' : 'Active'}
+                </span>
+              </div>
+
+              <div
+                class="stats"
+                style="grid-template-columns:repeat(4,1fr);margin:0 0 16px"
+              >
+                <div>
+                  <div class="stat-label">Original</div>
+                  <strong>${money(loanItem.principal)}</strong>
+                </div>
+
+                <div>
+                  <div class="stat-label">Principal due</div>
+                  <strong>${money(calculations.principal)}</strong>
+                </div>
+
+                <div>
+                  <div class="stat-label">Interest due</div>
+                  <strong>${money(calculations.accrued)}</strong>
+                </div>
+
+                <div>
+                  <div class="stat-label">Paid</div>
+                  <strong>${money(paid)}</strong>
+                </div>
+              </div>
+
+              <div class="meter">
+                <span
+                  style="width:${Math.min(
+                    100,
+                    Math.max(
+                      0,
+                      paid /
+                      Math.max(
+                        .01,
+                        loanItem.principal + calculations.accrued
+                      ) *
+                      100
+                    )
+                  )}%"
+                ></span>
+              </div>
+
+              <div
+                style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:16px"
+              >
+                <span class="muted">
+                  ${calculations.months}
+                  completed interest month
+                  ${calculations.months === 1 ? '' : 's'}
+                  · 3% flat rate
+                </span>
+
+                <div class="actions">
+                  ${
+                    !calculations.closed
+                      ? `
+                        <button
+                          class="btn small primary"
+                          data-repay="${loanItem.id}"
+                        >
+                          Repay
+                        </button>
+                      `
+                      : ''
+                  }
+
+                  <button
+                    class="btn small danger"
+                    data-delete-loan="${loanItem.id}"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </article>
+          `;
+        }).join('');
+      }
+
+      function populateForms() {
+        const currentBook = book();
+
+        const memberOptions = currentBook.members
+          .map(item => `
+            <option value="${item.id}">
+              ${escapeHtml(item.name)} · ${money(item.monthlyLimit)}/mo
+            </option>
+          `)
+          .join('');
+
+        $('#depositMember').innerHTML = memberOptions;
+        $('#loanMember').innerHTML = memberOptions;
+
+        $('#depositMonth').innerHTML = MONTHS
+          .map((month, index) => `
+            <option value="${index}">${month}</option>
+          `)
+          .join('');
+
+        $('#depositDate').value = today();
+        $('#loanDate').value = today();
+        $('#repayDate').value = today();
+
+        updateDepositHint();
+      }
+
+      function updateDepositHint() {
+        const selectedMember = member($('#depositMember').value);
+        const month = Number($('#depositMonth').value || 0);
+
+        if (!selectedMember) {
+          $('#depositLimitHint').textContent =
+            'Add a member before recording a deposit.';
+          return;
+        }
+
+        const used = book().deposits
+          .filter(item =>
+            item.memberId === selectedMember.id &&
+            Number(item.month) === month
+          )
+          .reduce((sum, item) => sum + Number(item.amount), 0);
+
+        $('#depositLimitHint').textContent =
+          `${selectedMember.name} has ${
+            money(selectedMember.monthlyLimit - used)
+          } remaining for ${MONTHS[month]}. Monthly ceiling: ${
+            money(selectedMember.monthlyLimit)
+          }.`;
+      }
+
+      function openAction(action) {
+        populateForms();
+
+        if (action === 'member') {
+          open('#memberModal');
+        }
+
+        if (action === 'deposit') {
+          if (!book().members.length) {
+            showToast(
+              'Add a member before recording a deposit.',
+              false
+            );
+            return;
+          }
+
+          open('#depositModal');
+        }
+
+        if (action === 'loan') {
+          if (!book().members.length) {
+            showToast(
+              'Add a member before issuing a loan.',
+              false
+            );
+            return;
+          }
+
+          open('#loanModal');
+        }
+      }
+
+      function requireAuth(title, message, callback) {
+        $('#authTitle').textContent = title;
+        $('#authMessage').textContent = message;
+        $('#authPassword').value = '';
+        pendingAuth = callback;
+
+        open('#authModal');
+
+        setTimeout(() => $('#authPassword').focus(), 50);
+      }
+
+      async function verifyPassword(value) {
+        return (await hash(value)) === state.adminHash;
+      }
+
+      function addMember(event) {
+        event.preventDefault();
+
+        const name = $('#memberName').value.trim();
+        const contact = $('#memberEmail').value.trim();
+        const limit = Number($('#memberLimit').value);
+
+        if (!name || limit <= 0) {
+          return;
+        }
+
+        const newMember = {
+          id: uid(),
+          name,
+          contact,
+          monthlyLimit: Number(limit.toFixed(2)),
+          createdAt: new Date().toISOString()
+        };
+
+        book().members.push(newMember);
+
+        addAudit(
+          'member',
+          `Added ${name}; locked ${money(limit)}/month`
+        );
+
+        save();
+        close('#memberModal');
+        event.target.reset();
+        render();
+
+        showToast('Member added and monthly limit locked.');
+      }
+
+      function addDeposit(event) {
+        event.preventDefault();
+
+        const memberId = $('#depositMember').value;
+        const month = Number($('#depositMonth').value);
+        const amount = Number($('#depositAmount').value);
+        const selectedMember = member(memberId);
+
+        const used = book().deposits
+          .filter(item =>
+            item.memberId === memberId &&
+            Number(item.month) === month
+          )
+          .reduce((sum, item) => sum + Number(item.amount), 0);
+
+        if (!selectedMember || amount <= 0) {
+          return;
+        }
+
+        if (used + amount > selectedMember.monthlyLimit + .005) {
+          showToast(
+            `Limit exceeded. ${
+              money(selectedMember.monthlyLimit - used)
+            } remains for ${MONTHS[month]}.`,
+            false
+          );
+          return;
+        }
+
+        const deposit = {
+          id: uid(),
+          memberId,
+          month,
+          amount: Number(amount.toFixed(2)),
+          date: $('#depositDate').value,
+          note: $('#depositNote').value.trim()
+        };
+
+        book().deposits.push(deposit);
+
+        addAudit(
+          'deposit',
+          `Deposit recorded for ${selectedMember.name}`,
+          amount
+        );
+
+        save();
+        close('#depositModal');
+        event.target.reset();
+        render();
+
+        showToast('Deposit recorded.');
+      }
+
+      function addLoan(event) {
+        event.preventDefault();
+
+        const memberId = $('#loanMember').value;
+        const principal = Number($('#loanPrincipal').value);
+        const borrower = member(memberId);
+
+        if (!borrower || principal <= 0) {
+          return;
+        }
+
+        const newLoan = {
+          id: uid(),
+          memberId,
+          principal: Number(principal.toFixed(2)),
+          issueDate: $('#loanDate').value,
+          purpose: $('#loanPurpose').value.trim(),
+          principalPaid: 0,
+          accruedInterest: 0,
+          interestPaid: 0,
+          interestAnchor: $('#loanDate').value,
+          createdAt: new Date().toISOString()
+        };
+
+        book().loans.push(newLoan);
+
+        addAudit(
+          'loan',
+          `Loan issued to ${borrower.name}`,
+          principal
+        );
+
+        save();
+        close('#loanModal');
+        event.target.reset();
+        render();
+
+        showToast('Loan issued at the fixed 3% monthly rate.');
+      }
+
+      function startRepayment(id) {
+        const loanItem = loan(id);
+        const calculations = loanCalc(loanItem);
+        const borrower = member(loanItem.memberId);
+
+        $('#repayLoanId').value = id;
+        $('#repayAmount').value = '';
+        $('#repayDate').value = today();
+
+        $('#repayDescription').textContent =
+          `${borrower?.name || 'Borrower'} has ${
+            money(calculations.principal)
+          } principal and ${
+            money(calculations.accrued)
+          } accrued interest due.`;
+
+        $('#repayPreview').textContent =
+          `Payments are allocated interest-first. Current payoff amount: ${
+            money(calculations.total)
+          }.`;
+
+        open('#repayModal');
+      }
+
+      function addRepayment(event) {
+        event.preventDefault();
+
+        const loanId = $('#repayLoanId').value;
+        const amount = Number($('#repayAmount').value);
+        const date = $('#repayDate').value;
+        const loanItem = loan(loanId);
+
+        if (!loanItem || amount <= 0) {
+          return;
+        }
+
+        requireAuth(
+          'Authenticate repayment',
+          'This payment changes the active loan balance.',
+          async () => {
+            const calculations = loanCalc(loanItem, date);
+
+            const interestApplied = Math.min(
+              amount,
+              calculations.accrued
+            );
+
+            const principalApplied = Math.min(
+              Math.max(0, amount - interestApplied),
+              calculations.principal
+            );
+
+            loanItem.accruedInterest = Math.max(
+              0,
+              calculations.accrued - interestApplied
+            );
+
+            loanItem.interestPaid =
+              Number(loanItem.interestPaid || 0) + interestApplied;
+
+            loanItem.principalPaid =
+              Number(loanItem.principalPaid || 0) + principalApplied;
+
+            loanItem.interestAnchor = date;
+
+            const repayment = {
+              id: uid(),
+              loanId,
+              amount: Number(amount.toFixed(2)),
+              date,
+              interestApplied: Number(interestApplied.toFixed(2)),
+              principalApplied: Number(principalApplied.toFixed(2)),
+              note: $('#repayNote').value.trim()
+            };
+
+            book().repayments.push(repayment);
+
+            addAudit(
+              'repayment',
+              `Repayment applied to ${
+                member(loanItem.memberId)?.name || 'borrower'
+              }`,
+              amount
+            );
+
+            save();
+            close('#repayModal');
+            render();
+
+            showToast(
+              loanCalc(loanItem).closed
+                ? 'Loan closed and paid in full.'
+                : 'Repayment authenticated and applied.'
+            );
+          }
+        );
+      }
+
+      function removeMember(id) {
+        const selectedMember = member(id);
+
+        if (!selectedMember) {
+          return;
+        }
+
+        requireAuth(
+          'Delete member',
+          `Delete ${selectedMember.name} and all of their book records?`,
+          async () => {
+            book().members = book().members.filter(
+              item => item.id !== id
+            );
+
+            const loanIds = book().loans
+              .filter(item => item.memberId === id)
+              .map(item => item.id);
+
+            book().loans = book().loans.filter(
+              item => item.memberId !== id
+            );
+
+            book().deposits = book().deposits.filter(
+              item => item.memberId !== id
+            );
+
+            book().repayments = book().repayments.filter(
+              item => !loanIds.includes(item.loanId)
+            );
+
+            addAudit(
+              'delete',
+              `Deleted member ${selectedMember.name}`
+            );
+
+            save();
+            render();
+
+            showToast('Member and related records deleted.');
+          }
+        );
+      }
+
+      function removeDeposit(id) {
+        const deposit = book().deposits.find(item => item.id === id);
+
+        if (!deposit) {
+          return;
+        }
+
+        requireAuth(
+          'Delete deposit',
+          'This removes a ledger entry from the active book.',
+          async () => {
+            book().deposits = book().deposits.filter(
+              item => item.id !== id
+            );
+
+            addAudit(
+              'delete',
+              'Deleted deposit entry',
+              deposit.amount
+            );
+
+            save();
+            render();
+
+            showToast('Deposit deleted.');
+          }
+        );
+      }
+
+      function removeLoan(id) {
+        const loanItem = loan(id);
+
+        if (!loanItem) {
+          return;
+        }
+
+        requireAuth(
+          'Delete loan',
+          'Delete this loan and all repayments attached to it?',
+          async () => {
+            book().loans = book().loans.filter(
+              item => item.id !== id
+            );
+
+            book().repayments = book().repayments.filter(
+              item => item.loanId !== id
+            );
+
+            addAudit(
+              'delete',
+              `Deleted loan for ${
+                member(loanItem.memberId)?.name || 'borrower'
+              }`
+            );
+
+            save();
+            render();
+
+            showToast('Loan deleted.');
+          }
+        );
+      }
+
+      function download(blob, name) {
+        const anchor = document.createElement('a');
+
+        anchor.href = URL.createObjectURL(blob);
+        anchor.download = name;
+
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+
+        setTimeout(() => {
+          URL.revokeObjectURL(anchor.href);
+        }, 1000);
+      }
+
+      async function deriveKey(password, salt) {
+        const base = await crypto.subtle.importKey(
+          'raw',
+          new TextEncoder().encode(password),
+          'PBKDF2',
+          false,
+          ['deriveKey']
+        );
+
+        return crypto.subtle.deriveKey(
+          {
+            name: 'PBKDF2',
+            salt,
+            iterations: 150000,
+            hash: 'SHA-256'
+          },
+          base,
+          {
+            name: 'AES-GCM',
+            length: 256
+          },
+          false,
+          ['encrypt', 'decrypt']
+        );
+      }
+
+      async function exportFfm() {
+        requireAuth(
+          'Authenticate backup',
+          'Verify your administrator password before exporting a private backup.',
+          async () => {
+            const password = prompt(
+              'Create a password for this .ffm backup (at least 8 characters):'
+            );
+
+            if (!password || password.length < 8) {
+              showToast(
+                'Backup password must be at least 8 characters.',
+                false
+              );
+              return;
+            }
+
+            const salt = crypto.getRandomValues(
+              new Uint8Array(16)
+            );
+
+            const iv = crypto.getRandomValues(
+              new Uint8Array(12)
+            );
+
+            const key = await deriveKey(password, salt);
+
+            const plain = new TextEncoder().encode(
+              JSON.stringify({
+                format: 'FFM',
+                version: 1,
+                exportedAt: new Date().toISOString(),
+                book: book()
+              })
+            );
+
+            const cipher = new Uint8Array(
+              await crypto.subtle.encrypt(
+                {
+                  name: 'AES-GCM',
+                  iv
+                },
+                key,
+                plain
+              )
+            );
+
+            const payload = {
+              format: 'FFM-AES-256-GCM',
+              salt: [...salt],
+              iv: [...iv],
+              data: [...cipher]
+            };
+
+            download(
+              new Blob(
+                [JSON.stringify(payload)],
+                {
+                  type: 'application/octet-stream'
+                }
+              ),
+              `friends-funding-${activeYear}.ffm`
+            );
+
+            showToast('Encrypted .ffm backup exported.');
+          }
+        );
+      }
+
+      function importFfm() {
+        $('#importFile').click();
+      }
+
+      async function handleImport(event) {
+        const file = event.target.files[0];
+
+        if (!file) {
+          return;
+        }
+
+        const password = prompt('Enter the backup password:');
+
+        if (!password) {
+          return;
+        }
+
+        try {
+          const payload = JSON.parse(await file.text());
+
+          const key = await deriveKey(
+            password,
+            new Uint8Array(payload.salt)
+          );
+
+          const plain = await crypto.subtle.decrypt(
+            {
+              name: 'AES-GCM',
+              iv: new Uint8Array(payload.iv)
+            },
+            key,
+            new Uint8Array(payload.data)
+          );
+
+          const parsed = JSON.parse(
+            new TextDecoder().decode(plain)
+          );
+
+          if (parsed.format !== 'FFM' || !parsed.book) {
+            throw new Error('Invalid backup');
+          }
+
+          requireAuth(
+            'Authenticate import',
+            'Importing replaces the current year book.',
+            async () => {
+              state.books[String(parsed.book.year)] = parsed.book;
+              activeYear = String(parsed.book.year);
+
+              save();
+              render();
+
+              showToast('Encrypted backup imported successfully.');
+            }
+          );
+        } catch {
+          showToast(
+            'Unable to decrypt this backup. Check the password.',
+            false
+          );
+        }
+
+        event.target.value = '';
+      }
+
+      function xml(value) {
+        return escapeHtml(value).replace(/\n/g, '&#10;');
+      }
+
+      function sheetXml(rows) {
+        return `
+          <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+          <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+            <sheetData>
+              ${rows.map((row, rowIndex) => `
+                <row r="${rowIndex + 1}">
+                  ${row.map((value, columnIndex) => {
+                    const reference =
+                      col(columnIndex) + (rowIndex + 1);
+
+                    const isNumber =
+                      typeof value === 'number' &&
+                      !Number.isNaN(value);
+
+                    return isNumber
+                      ? `<c r="${reference}"><v>${value}</v></c>`
+                      : `
+                        <c r="${reference}" t="inlineStr">
+                          <is><t>${xml(value)}</t></is>
+                        </c>
+                      `;
+                  }).join('')}
+                </row>
+              `).join('')}
+            </sheetData>
+          </worksheet>
+        `;
+      }
+
+      function col(number) {
+        let result = '';
+
+        do {
+          result =
+            String.fromCharCode(65 + number % 26) +
+            result;
+
+          number = Math.floor(number / 26) - 1;
+        } while (number >= 0);
+
+        return result;
+      }
+
+      function crc32(bytes) {
+        let table = crc32.table;
+
+        if (!table) {
+          table = crc32.table = [];
+
+          for (let number = 0; number < 256; number++) {
+            let value = number;
+
+            for (let index = 0; index < 8; index++) {
+              value =
+                value & 1
+                  ? 0xedb88320 ^ (value >>> 1)
+                  : value >>> 1;
+            }
+
+            table[number] = value >>> 0;
+          }
+        }
+
+        let crc = 0xffffffff;
+
+        for (const byte of bytes) {
+          crc =
+            table[(crc ^ byte) & 255] ^
+            (crc >>> 8);
+        }
+
+        return (crc ^ 0xffffffff) >>> 0;
+      }
+
+      function u16(number) {
+        return [
+          new Uint8Array([
+            number & 255,
+            number >>> 8 & 255
+          ])
+        ];
+      }
+
+      function u32(number) {
+        return [
+          new Uint8Array([
+            number & 255,
+            number >>> 8 & 255,
+            number >>> 16 & 255,
+            number >>> 24 & 255
+          ])
+        ];
+      }
+
+      function concat(parts) {
+        const size = parts.reduce(
+          (sum, part) => sum + part.length,
+          0
+        );
+
+        const output = new Uint8Array(size);
+        let position = 0;
+
+        parts.forEach(part => {
+          output.set(part, position);
+          position += part.length;
+        });
+
+        return output;
+      }
+
+      function zip(files) {
+        const local = [];
+        const central = [];
+        let offset = 0;
+
+        for (const [name, text] of Object.entries(files)) {
+          const nameBytes = new TextEncoder().encode(name);
+          const dataBytes = new TextEncoder().encode(text);
+          const checksum = crc32(dataBytes);
+
+          const header = concat([
+            new Uint8Array([80, 75, 3, 4]),
+            new Uint8Array([20, 0, 0, 0, 0, 0, 0, 0]),
+            u32(checksum)[0],
+            u32(dataBytes.length)[0],
+            u32(dataBytes.length)[0],
+            u16(nameBytes.length)[0],
+            new Uint8Array([0, 0]),
+            nameBytes,
+            dataBytes
+          ]);
+
+          local.push(header);
+
+          central.push(
+            concat([
+              new Uint8Array([80, 75, 1, 2]),
+              new Uint8Array([
+                20, 0,
+                20, 0,
+                0, 0,
+                0, 0,
+                0, 0,
+                0, 0,
+                0, 0
+              ]),
+              u32(checksum)[0],
+              u32(dataBytes.length)[0],
+              u32(dataBytes.length)[0],
+              u16(nameBytes.length)[0],
+              new Uint8Array([0, 0, 0, 0, 0, 0]),
+              u32(offset)[0],
+              nameBytes
+            ])
+          );
+
+          offset += header.length;
+        }
+
+        const body = concat(local);
+        const centralDirectory = concat(central);
+
+        const end = concat([
+          new Uint8Array([80, 75, 5, 6, 0, 0, 0, 0]),
+          u16(central.length)[0],
+          u16(central.length)[0],
+          u32(centralDirectory.length)[0],
+          u32(body.length)[0],
+          new Uint8Array([0, 0])
+        ]);
+
+        return concat([
+          body,
+          centralDirectory,
+          end
+        ]);
+      }
+
+      function exportXlsx() {
+        const currentBook = book();
+        const totals = bookTotals();
+
+        const rows = {
+          Summary: [
+            ['Friends Funding Manager', currentBook.year],
+            ['Metric', 'Value'],
+            ['Cash in funding account', totals.cash],
+            ['Total member deposits', totals.deposits],
+            ['Loans given', totals.loansGiven],
+            ['Repayments received', totals.repayments],
+            ['Outstanding loans', totals.outstanding],
+            ['Interest acquired', totals.interestPaid],
+            ['Interest pending', totals.pending]
+          ],
+
+          'Member Summary': [
+            [
+              'Member',
+              'Contact',
+              'Monthly limit',
+              'Total deposits',
+              'Loan balance'
+            ]
+          ],
+
+          'Deposit Grid': [
+            ['Member', ...MONTHS, 'Total']
+          ],
+
+          Deposits: [
+            ['Date', 'Member', 'Month', 'Amount', 'Note']
+          ],
+
+          Loans: [
+            [
+              'Borrower',
+              'Issue date',
+              'Original principal',
+              'Principal due',
+              'Interest due',
+              'Status',
+              'Purpose'
+            ]
+          ],
+
+          Repayments: [
+            [
+              'Date',
+              'Borrower',
+              'Amount',
+              'Interest applied',
+              'Principal applied',
+              'Note'
+            ]
+          ],
+
+          'Member Statement': [
+            ['Member', 'Date', 'Type', 'Amount', 'Detail']
+          ],
+
+          Transactions: [
+            ['Date', 'Type', 'Message', 'Amount']
+          ]
+        };
+
+        currentBook.members.forEach(item => {
+          const deposits = currentBook.deposits.filter(
+            deposit => deposit.memberId === item.id
+          );
+
+          const loans = currentBook.loans.filter(
+            loanItem => loanItem.memberId === item.id
+          );
+
+          rows['Member Summary'].push([
+            item.name,
+            item.contact || '',
+            item.monthlyLimit,
+            deposits.reduce(
+              (sum, deposit) => sum + deposit.amount,
+              0
+            ),
+            loans.reduce(
+              (sum, loanItem) => sum + loanCalc(loanItem).total,
+              0
+            )
+          ]);
+
+          let total = 0;
+
+          rows['Deposit Grid'].push([
+            item.name,
+            ...MONTHS.map((month, index) => {
+              const value = deposits
+                .filter(deposit => Number(deposit.month) === index)
+                .reduce(
+                  (sum, deposit) => sum + deposit.amount,
+                  0
+                );
+
+              total += value;
+              return value;
+            }),
+            total
+          ]);
+
+          deposits.forEach(deposit => {
+            rows['Member Statement'].push([
+              item.name,
+              deposit.date,
+              'Deposit',
+              deposit.amount,
+              `${MONTHS[deposit.month]} contribution`
+            ]);
+          });
+
+          loans.forEach(loanItem => {
+            rows['Member Statement'].push([
+              item.name,
+              loanItem.issueDate,
+              'Loan',
+              loanItem.principal,
+              loanItem.purpose || 'Loan issued'
+            ]);
+
+            currentBook.repayments
+              .filter(repayment => repayment.loanId === loanItem.id)
+              .forEach(repayment => {
+                rows['Member Statement'].push([
+                  item.name,
+                  repayment.date,
+                  'Repayment',
+                  repayment.amount,
+                  `Interest ${repayment.interestApplied}; principal ${repayment.principalApplied}`
+                ]);
+              });
+          });
+        });
+
+        currentBook.deposits.forEach(deposit => {
+          rows.Deposits.push([
+            deposit.date,
+            member(deposit.memberId)?.name || 'Unknown',
+            MONTHS[deposit.month],
+            deposit.amount,
+            deposit.note || ''
+          ]);
+        });
+
+        currentBook.loans.forEach(loanItem => {
+          const calculations = loanCalc(loanItem);
+
+          rows.Loans.push([
+            member(loanItem.memberId)?.name || 'Unknown',
+            loanItem.issueDate,
+            loanItem.principal,
+            calculations.principal,
+            calculations.accrued,
+            calculations.closed ? 'Closed & Paid' : 'Active',
+            loanItem.purpose || ''
+          ]);
+        });
+
+        currentBook.repayments.forEach(repayment => {
+          rows.Repayments.push([
+            repayment.date,
+            member(loan(repayment.loanId)?.memberId)?.name || 'Unknown',
+            repayment.amount,
+            repayment.interestApplied,
+            repayment.principalApplied,
+            repayment.note || ''
+          ]);
+        });
+
+        currentBook.audit.forEach(item => {
+          rows.Transactions.push([
+            item.date,
+            item.type,
+            item.message,
+            item.amount
+          ]);
+        });
+
+        const names = Object.keys(rows);
+
+        const files = {
+          '[Content_Types].xml': `
+            <?xml version="1.0" encoding="UTF-8"?>
+            <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+              <Default
+                Extension="rels"
+                ContentType="application/vnd.openxmlformats-package.relationships+xml"
+              />
+              <Default
+                Extension="xml"
+                ContentType="application/xml"
+              />
+              <Override
+                PartName="/xl/workbook.xml"
+                ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"
+              />
+              ${names.map((name, index) => `
+                <Override
+                  PartName="/xl/worksheets/sheet${index + 1}.xml"
+                  ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"
+                />
+              `).join('')}
+            </Types>
+          `,
+
+          '_rels/.rels': `
+            <?xml version="1.0" encoding="UTF-8"?>
+            <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+              <Relationship
+                Id="rId1"
+                Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument"
+                Target="xl/workbook.xml"
+              />
+            </Relationships>
+          `,
+
+          'xl/workbook.xml': `
+            <?xml version="1.0" encoding="UTF-8"?>
+            <workbook
+              xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+              xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+            >
+              <sheets>
+                ${names.map((name, index) => `
+                  <sheet
+                    name="${xml(name)}"
+                    sheetId="${index + 1}"
+                    r:id="rId${index + 1}"
+                  />
+                `).join('')}
+              </sheets>
+            </workbook>
+          `,
+
+          'xl/_rels/workbook.xml.rels': `
+            <?xml version="1.0" encoding="UTF-8"?>
+            <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+              ${names.map((name, index) => `
+                <Relationship
+                  Id="rId${index + 1}"
+                  Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet"
+                  Target="worksheets/sheet${index + 1}.xml"
+                />
+              `).join('')}
+            </Relationships>
+          `
+        };
+
+        names.forEach((name, index) => {
+          files[`xl/worksheets/sheet${index + 1}.xml`] =
+            sheetXml(rows[name]);
+        });
+
+        download(
+          new Blob(
+            [zip(files)],
+            {
+              type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            }
+          ),
+          `friends-funding-${activeYear}.xlsx`
+        );
+
+        showToast('Multi-sheet Excel workbook exported.');
+      }
+
+      function resetBook() {
+        requireAuth(
+          'Reset active book',
+          'This permanently clears the active year book.',
+          async () => {
+            state.books[activeYear] = blankBook(activeYear);
+
+            save();
+            render();
+
+            showToast('Active book reset.');
+          }
+        );
+      }
+
+      function changePassword(event) {
+        event.preventDefault();
+
+        const currentPassword = $('#currentPassword').value;
+        const newPassword = $('#newPassword').value;
+        const confirmPassword = $('#confirmPassword').value;
+
+        if (
+          newPassword.length < 8 ||
+          newPassword !== confirmPassword
+        ) {
+          showToast(
+            'New passwords must match and be at least 8 characters.',
+            false
+          );
+          return;
+        }
+
+        hash(currentPassword).then(currentHash => {
+          if (currentHash !== state.adminHash) {
+            showToast(
+              'Current password is incorrect.',
+              false
+            );
+            return;
+          }
+
+          hash(newPassword).then(nextHash => {
+            state.adminHash = nextHash;
+            save();
+
+            close('#passwordModal');
+            event.target.reset();
+
+            showToast('Administrator password updated.');
+          });
+        });
+      }
+
+      function init() {
+        if (!state.adminHash) {
+          $('#setup').classList.add('show');
+          $('#app').classList.remove('show');
+        } else {
+          $('#app').classList.add('show');
+          render();
+        }
+
+        $('#setupForm').addEventListener(
+          'submit',
+          async event => {
+            event.preventDefault();
+
+            const password = $('#setupPassword').value;
+            const confirm = $('#setupConfirm').value;
+
+            if (
+              password.length < 8 ||
+              password !== confirm
+            ) {
+              showToast(
+                'Passwords must match and be at least 8 characters.',
+                false
+              );
+              return;
+            }
+
+            state.adminHash = await hash(password);
+            state.books[activeYear] = blankBook(activeYear);
+
+            save();
+
+            $('#setup').classList.remove('show');
+            $('#app').classList.add('show');
+
+            render();
+
+            showToast('Secure ledger created.');
+          }
+        );
+
+        $$('[data-view]').forEach(button => {
+          button.addEventListener('click', () => {
+            $$('[data-view]').forEach(item =>
+              item.classList.remove('active')
+            );
+
+            button.classList.add('active');
+
+            $$('.view').forEach(view =>
+              view.classList.remove('active')
+            );
+
+            $('#' + button.dataset.view + 'View')
+              .classList.add('active');
+          });
+        });
+
+        $$('[data-action]').forEach(button => {
+          button.addEventListener('click', () => {
+            openAction(button.dataset.action);
+          });
+        });
+
+        $$('[data-close]').forEach(button => {
+          button.addEventListener('click', () => {
+            close('#' + button.dataset.close);
+          });
+        });
+
+        $('#yearSelect').addEventListener('change', event => {
+          activeYear = event.target.value;
+          render();
+        });
+
+        $('#newYearBtn').addEventListener('click', () => {
+          $('#newYear').value = Number(activeYear) + 1;
+          open('#yearModal');
+        });
+
+        $('#yearForm').addEventListener('submit', event => {
+          event.preventDefault();
+
+          const year = String(Number($('#newYear').value));
+
+          if (state.books[year]) {
+            showToast('That year already exists.', false);
+            return;
+          }
+
+          state.books[year] = blankBook(year);
+          activeYear = year;
+
+          addAudit('book', `Initialized ${year} book`);
+
+          save();
+          close('#yearModal');
+          render();
+
+          showToast(`${year} book initialized.`);
+        });
+
+        $('#memberForm').addEventListener('submit', addMember);
+        $('#depositForm').addEventListener('submit', addDeposit);
+        $('#loanForm').addEventListener('submit', addLoan);
+        $('#repayForm').addEventListener('submit', addRepayment);
+
+        $('#depositMember').addEventListener(
+          'change',
+          updateDepositHint
+        );
+
+        $('#depositMonth').addEventListener(
+          'change',
+          updateDepositHint
+        );
+
+        $$('[data-loan-filter]').forEach(button => {
+          button.addEventListener('click', () => {
+            $$('[data-loan-filter]').forEach(item =>
+              item.classList.remove('active')
+            );
+
+            button.classList.add('active');
+            loanFilter = button.dataset.loanFilter;
+            renderLoans();
+          });
+        });
+
+        $('#exportFfmBtn').addEventListener('click', exportFfm);
+        $('#importFfmBtn').addEventListener('click', importFfm);
+
+        $('#importFile').addEventListener(
+          'change',
+          handleImport
+        );
+
+        $('#exportXlsxBtn').addEventListener('click', exportXlsx);
+        $('#resetBookBtn').addEventListener('click', resetBook);
+
+        $('#changePasswordBtn').addEventListener(
+          'click',
+          () => open('#passwordModal')
+        );
+
+        $('#passwordForm').addEventListener(
+          'submit',
+          changePassword
+        );
+
+        document.addEventListener('click', event => {
+          const deleteMember =
+            event.target.closest('[data-delete-member]');
+
+          const deleteDeposit =
+            event.target.closest('[data-delete-deposit]');
+
+          const deleteLoan =
+            event.target.closest('[data-delete-loan]');
+
+          const repay =
+            event.target.closest('[data-repay]');
+
+          if (deleteMember) {
+            removeMember(deleteMember.dataset.deleteMember);
+          }
+
+          if (deleteDeposit) {
+            removeDeposit(deleteDeposit.dataset.deleteDeposit);
+          }
+
+          if (deleteLoan) {
+            removeLoan(deleteLoan.dataset.deleteLoan);
+          }
+
+          if (repay) {
+            startRepayment(repay.dataset.repay);
+          }
+        });
+
+        $('#setup').classList.toggle(
+          'show',
+          !state.adminHash
+        );
+
+        $('#app').classList.toggle(
+          'show',
+          !!state.adminHash
+        );
+      }
+
+      init();
+
+      $('#authForm').addEventListener(
+        'submit',
+        async event => {
+          event.preventDefault();
+
+          const password = $('#authPassword').value;
+
+          if (!(await verifyPassword(password))) {
+            showToast(
+              'Administrator password is incorrect.',
+              false
+            );
+            return;
+          }
+
+          const callback = pendingAuth;
+          pendingAuth = null;
+
+          close('#authModal');
+
+          if (callback) {
+            await callback();
+          }
+        }
+      );
+    })();
+  </script>
+</body>
+</html>
+```
